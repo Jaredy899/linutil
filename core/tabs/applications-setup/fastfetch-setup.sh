@@ -5,17 +5,20 @@
 installFastfetch() {
     if ! command_exists fastfetch; then
         printf "%b\n" "${YELLOW}Installing Fastfetch...${RC}"
+        case "$ARCH" in
+            x86_64)
+                DEB_FILE="fastfetch-linux-amd64.deb"
+                ;;
+            aarch64)
+                DEB_FILE="fastfetch-linux-aarch64.deb"
+                ;;
+        esac
+
         case "$PACKAGER" in
             pacman)
                 "$ESCALATION_TOOL" "$PACKAGER" -S --needed --noconfirm fastfetch
                 ;;
             apt-get|nala)
-                ARCH=$(uname -m)
-                if [ "$ARCH" = "aarch64" ]; then
-                    DEB_FILE="fastfetch-linux-aarch64.deb"
-                else
-                    DEB_FILE="fastfetch-linux-amd64.deb"
-                fi
                 curl -sSLo "/tmp/fastfetch.deb" "https://github.com/fastfetch-cli/fastfetch/releases/latest/download/$DEB_FILE"
                 "$ESCALATION_TOOL" "$PACKAGER" install -y /tmp/fastfetch.deb
                 rm /tmp/fastfetch.deb
