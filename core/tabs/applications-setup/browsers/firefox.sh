@@ -15,7 +15,7 @@ installFirefox() {
             pacman)
                 "$ESCALATION_TOOL" "$PACKAGER" -S --needed --noconfirm firefox
                 ;;
-            dnf)
+            dnf|eopkg)
                 "$ESCALATION_TOOL" "$PACKAGER" install -y firefox
                 ;;
             xbps-install)
@@ -23,9 +23,6 @@ installFirefox() {
                 ;;
             apk)
                 "$ESCALATION_TOOL" "$PACKAGER" add firefox
-                ;;
-            eopkg)
-                "$ESCALATION_TOOL" "$PACKAGER" -y install firefox
                 ;;
             *)
                 printf "%b\n" "${RED}Unsupported package manager: ""$PACKAGER""${RC}"
