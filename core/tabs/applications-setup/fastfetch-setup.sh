@@ -26,7 +26,7 @@ installFastfetch() {
                 "$ESCALATION_TOOL" "$PACKAGER" add fastfetch
                 ;;
             xbps-install)
-                "$ESCALATION_TOOL" "$PACKAGER" fastfetch
+                "$ESCALATION_TOOL" "$PACKAGER" -y fastfetch
                 ;;
             *)
                 "$ESCALATION_TOOL" "$PACKAGER" install -y fastfetch
