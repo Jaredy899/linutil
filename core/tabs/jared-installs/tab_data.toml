@@ -1,1 +1,7 @@
 name = "Jared's Installs"
+
+[[data]]
+name = "Jared's Post Install"
+description = "Gets local time, Installs nala if on Debian, adds openssh, and other helpful utilities"
+script = "post_install.sh"
+task_list = "I SS"
