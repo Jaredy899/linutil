@@ -55,20 +55,20 @@ if ! command_exists ghostty; then
         case "$PACKAGER" in
             "pacman")
                 printf "%b\n" "${CYAN}Installing Ghostty from official repositories...${RC}"
-                noninteractive ghostty
+                "$ESCALATION_TOOL" "$PACKAGER" -S --needed --noconfirm ghostty
                 ;;
             "eopkg")
                 printf "%b\n" "${CYAN}Installing Ghostty from repositories...${RC}"
-                noninteractive ghostty
+                "$ESCALATION_TOOL" "$PACKAGER" install -y ghostty
                 ;;
             "xbps-install")
                 printf "%b\n" "${CYAN}Installing Ghostty from repositories...${RC}"
-                noninteractive ghostty
+                "$ESCALATION_TOOL" "$PACKAGER" install -y ghostty
                 ;;
             "dnf")
                 printf "%b\n" "${YELLOW}Installing Ghostty from COPR repository...${RC}"
-                "$ESCALATION_TOOL" dnf copr enable -y pgdev/ghostty
-                noninteractive ghostty
+                "$ESCALATION_TOOL" "$PACKAGER" install -y dnf copr enable -y pgdev/ghostty
+                "$ESCALATION_TOOL" "$PACKAGER" install -y ghostty
                 ;;
             *)
                 return 1
@@ -83,16 +83,16 @@ if ! command_exists ghostty; then
         # Install dependencies based on package manager
         case "$PACKAGER" in
             "apt-get"|"nala")
-                noninteractive libgtk-4-dev libadwaita-1-dev git
+                "$ESCALATION_TOOL" "$PACKAGER" install -y libgtk-4-dev libadwaita-1-dev git
                 ;;
             "pacman")
-                noninteractive gtk4 libadwaita
+                "$ESCALATION_TOOL" "$PACKAGER" -S --needed --noconfirm gtk4 libadwaita
                 ;;
             "dnf")
-                noninteractive gtk4-devel libadwaita-devel
+                "$ESCALATION_TOOL" "$PACKAGER" install -y gtk4-devel libadwaita-devel
                 ;;
             "zypper")
-                noninteractive gtk4-tools libadwaita-devel pkgconf-pkg-config
+                "$ESCALATION_TOOL" "$PACKAGER" install -y gtk4-tools libadwaita-devel pkgconf-pkg-config
                 ;;
             *)
                 printf "%b\n" "${RED}Unsupported package manager for source installation${RC}"
