@@ -135,10 +135,19 @@ install_zig() {
             fi
         fi
 
+        # Determine the correct bin directory
+        BIN_DIR="/usr/local/bin"
+        if [ "$PACKAGER" == "eopkg" ]; then
+            BIN_DIR="/usr/bin"
+        fi
+
+        # Ensure the bin directory exists
+        "$ESCALATION_TOOL" mkdir -p "$BIN_DIR"
+
         # Install Zig
         "$ESCALATION_TOOL" mkdir -p /usr/local/lib
         "$ESCALATION_TOOL" mv ${ZIG_DIR} /usr/local/lib/
-        "$ESCALATION_TOOL" ln -sf "/usr/local/lib/${ZIG_DIR}/zig" /usr/local/bin/zig
+        "$ESCALATION_TOOL" ln -sf "/usr/local/lib/${ZIG_DIR}/zig" "$BIN_DIR/zig"
         rm ${ZIG_DIR}.tar.xz
 
         if ! command -v zig &> /dev/null; then
