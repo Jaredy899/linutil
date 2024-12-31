@@ -289,7 +289,6 @@ impl AppState {
 
         let label = Paragraph::new(Line::from(vec![
             Span::styled("Linutil ", Style::default().bold()),
-            Span::styled("by Chris Titus", Style::default().italic()),
         ]))
         .block(label_block)
         .centered();
