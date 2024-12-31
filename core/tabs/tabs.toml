@@ -1,8 +1,8 @@
 directories = [
     "applications-setup",
     "gaming",
+    "jared-installs",
     "security",
     "system-setup",
     "utils"
-    "Jared's Installs"
 ]
