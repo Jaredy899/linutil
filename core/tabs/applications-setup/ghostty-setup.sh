@@ -1,9 +1,7 @@
 #!/bin/bash
 
 # Source common functions
-eval "$(curl -s https://raw.githubusercontent.com/Jaredy899/linux/refs/heads/main/common_script.sh)"
-eval "$(curl -s https://raw.githubusercontent.com/Jaredy899/linux/refs/heads/main/common_service_script.sh)"
-
+. ../common-script.sh
 # Check environment and requirements
 checkEnv
 
