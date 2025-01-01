@@ -169,7 +169,23 @@ create_desktop_entry() {
     printf "%b\n" "${YELLOW}Note: You may need to log out and back in to see the application in your menu${RC}"
 }
 
+# Function to check if Ghostty is already installed
+is_ghostty_installed() {
+    if command -v ghostty &> /dev/null; then
+        printf "%b\n" "${GREEN}Ghostty is already installed.${RC}"
+        ghostty --version
+        return 0
+    fi
+    return 1
+}
+
 # Main installation logic
+printf "%b\n" "${CYAN}Checking if Ghostty is already installed...${RC}"
+
+if is_ghostty_installed; then
+    exit 0
+fi
+
 printf "%b\n" "${CYAN}Checking for binary package availability...${RC}"
 
 if check_binary_availability; then
