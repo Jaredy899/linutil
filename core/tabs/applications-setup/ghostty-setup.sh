@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Source common functions
-. ../common-script.sh
+eval "$(curl -s https://raw.githubusercontent.com/Jaredy899/linux/refs/heads/main/common_script.sh)"
+eval "$(curl -s https://raw.githubusercontent.com/Jaredy899/linux/refs/heads/main/common_service_script.sh)"
+
 # Check environment and requirements
 checkEnv
 
@@ -10,51 +12,111 @@ GHOSTTY_VERSION="latest"
 INSTALL_DIR="/usr/local/bin"
 ZIG_VERSION="0.13.0"
 
-# Main Installation Logic
-if ! command_exists ghostty; then
-    printf "%b\n" "${CYAN}Checking for binary package availability...${RC}"
-
-    if check_binary_availability; then
-        printf "%b\n" "${CYAN}Binary package found for Ghostty${RC}"
-        install_binary_package
-        printf "%b\n" "${GREEN}Ghostty has been installed successfully from package repository!${RC}"
-    else
-        printf "%b\n" "${YELLOW}No binary package found for Ghostty.${RC}"
-        if command -v zig >/dev/null 2>&1; then
-            printf "%b\n" "${CYAN}Zig is already installed${RC}"
-        else
-            printf "%b\n" "${YELLOW}Zig binary not found.${RC}"
-        fi
+install_zig() {
+    if ! command -v zig &> /dev/null; then
+        printf "%b\n" "${YELLOW}Installing Zig ${ZIG_VERSION}...${RC}"
         
-        printf "%b\n" "${YELLOW}Would you like to install Ghostty from source? (y/N)${RC}"
-        read -r response
-        if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
-            if ! command -v zig >/dev/null 2>&1; then
-                install_zig
-            fi
-            install_from_source
-            create_desktop_entry
+        # Determine Zig URL and directory based on architecture
+        if [ "$ARCH" == "aarch64" ]; then
+            ZIG_URL="https://ziglang.org/download/${ZIG_VERSION}/zig-linux-aarch64-${ZIG_VERSION}.tar.xz"
+            ZIG_DIR="zig-linux-aarch64-${ZIG_VERSION}"
         else
-            printf "%b\n" "${RED}Installation cancelled.${RC}"
+            ZIG_URL="https://ziglang.org/download/${ZIG_VERSION}/zig-linux-x86_64-${ZIG_VERSION}.tar.xz"
+            ZIG_DIR="zig-linux-x86_64-${ZIG_VERSION}"
+        fi
+
+        # Download and extract Zig
+        curl -LO ${ZIG_URL}
+        tar -xf ${ZIG_DIR}.tar.xz
+
+        # Apply patch for aarch64
+        if [ "$ARCH" == "aarch64" ]; then
+            MEM_ZIG_PATH="${ZIG_DIR}/lib/std/mem.zig"
+            if [ -f "$MEM_ZIG_PATH" ]; then
+                sed -i 's/4 \* 1024/16 \* 1024/' "$MEM_ZIG_PATH"
+            fi
+        fi
+
+        # Install Zig
+        "$ESCALATION_TOOL" mkdir -p /usr/local/lib
+        "$ESCALATION_TOOL" mv ${ZIG_DIR} /usr/local/lib/
+        "$ESCALATION_TOOL" ln -sf "/usr/local/lib/${ZIG_DIR}/zig" /usr/local/bin/zig
+        rm ${ZIG_DIR}.tar.xz
+
+        if ! command -v zig &> /dev/null; then
+            printf "%b\n" "${RED}Zig installation failed${RC}"
             exit 1
         fi
     fi
+}
 
-    # Verify installation
-    if command -v ghostty &> /dev/null; then
-        printf "%b\n" "${GREEN}Ghostty installation verified successfully!${RC}"
-        ghostty --version
-    else
-        printf "%b\n" "${RED}Ghostty installation could not be verified.${RC}"
-        exit 1
-    fi
-else
-    printf "%b\n" "${GREEN}Ghostty is already installed!${RC}"
-    exit 0
-fi
+install_binary_package() {
+    case "$PACKAGER" in
+        "pacman")
+            printf "%b\n" "${CYAN}Installing Ghostty from official repositories...${RC}"
+            "$ESCALATION_TOOL" "$PACKAGER" -S --noconfirm ghostty
+            ;;
+        "eopkg")
+            printf "%b\n" "${CYAN}Installing Ghostty from repositories...${RC}"
+            "$ESCALATION_TOOL" "$PACKAGER" install -y ghostty
+            ;;
+        "xbps-install")
+            printf "%b\n" "${CYAN}Installing Ghostty from repositories...${RC}"
+            "$ESCALATION_TOOL" "$PACKAGER" -Sy ghostty
+            ;;
+        "dnf")
+            printf "%b\n" "${YELLOW}Installing Ghostty from COPR repository...${RC}"
+            "$ESCALATION_TOOL" dnf copr enable -y pgdev/ghostty
+            "$ESCALATION_TOOL" "$PACKAGER" install -y ghostty
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+    return 0
+}
 
-# Supporting Functions
-check_binary_availability() {
+install_from_source() {
+    printf "%b\n" "${YELLOW}Installing Ghostty from source...${RC}"
+    
+    # Install dependencies based on package manager
+    case "$PACKAGER" in
+        "apt-get"|"nala")
+            "$ESCALATION_TOOL" "$PACKAGER" install -y libgtk-4-dev libadwaita-1-dev git
+            ;;
+        "pacman")
+            "$ESCALATION_TOOL" "$PACKAGER" -S --noconfirm --needed gtk4 libadwaita
+            ;;
+        "dnf")
+            "$ESCALATION_TOOL" "$PACKAGER" install -y gtk4-devel libadwaita-devel
+            ;;
+        "zypper")
+            "$ESCALATION_TOOL" "$PACKAGER" install -y gtk4-tools libadwaita-devel pkgconf-pkg-config
+            ;;
+        "eopkg")
+            "$ESCALATION_TOOL" "$PACKAGER" install -y libgtk-4-devel libadwaita-devel perl-extutils-pkgconfig
+            ;;
+        *)
+            printf "%b\n" "${RED}Unsupported package manager for source installation${RC}"
+            exit 1
+            ;;
+    esac
+
+    # Install Zig if not present
+    install_zig
+
+    # Clone Ghostty repository
+    git clone https://github.com/ghostty-org/ghostty.git
+    cd ghostty
+
+    # Build Ghostty
+    printf "%b\n" "${CYAN}Building Ghostty...${RC}"
+    zig build -p "$HOME/.local" -Doptimize=ReleaseFast
+
+    printf "%b\n" "${GREEN}Ghostty has been built and installed successfully!${RC}"
+}
+
+function check_binary_availability() {
     case "$PACKAGER" in
         "pacman")
             if $AUR_HELPER -Ss "^ghostty$" >/dev/null 2>&1; then
@@ -84,113 +146,6 @@ check_binary_availability() {
     return 1
 }
 
-install_binary_package() {
-    case "$PACKAGER" in
-        "pacman")
-            printf "%b\n" "${CYAN}Installing Ghostty from official repositories...${RC}"
-            "$ESCALATION_TOOL" "$PACKAGER" -S --needed --noconfirm ghostty
-            ;;
-        "eopkg")
-            printf "%b\n" "${CYAN}Installing Ghostty from repositories...${RC}"
-            "$ESCALATION_TOOL" "$PACKAGER" install -y ghostty
-            ;;
-        "xbps-install")
-            printf "%b\n" "${CYAN}Installing Ghostty from repositories...${RC}"
-            "$ESCALATION_TOOL" "$PACKAGER" install -y ghostty
-            ;;
-        "dnf")
-            printf "%b\n" "${YELLOW}Installing Ghostty from COPR repository...${RC}"
-            "$ESCALATION_TOOL" "$PACKAGER" install -y dnf copr enable -y pgdev/ghostty
-            "$ESCALATION_TOOL" "$PACKAGER" install -y ghostty
-            ;;
-        *)
-            return 1
-            ;;
-    esac
-    return 0
-}
-
-install_zig() {
-    if ! command -v zig &> /dev/null; then
-        printf "%b\n" "${YELLOW}Installing Zig ${ZIG_VERSION}...${RC}"
-        
-        # Determine Zig URL and directory based on architecture
-        if [ "$ARCH" == "aarch64" ]; then
-            ZIG_URL="https://ziglang.org/download/${ZIG_VERSION}/zig-linux-aarch64-${ZIG_VERSION}.tar.xz"
-            ZIG_DIR="zig-linux-aarch64-${ZIG_VERSION}"
-        else
-            ZIG_URL="https://ziglang.org/download/${ZIG_VERSION}/zig-linux-x86_64-${ZIG_VERSION}.tar.xz"
-            ZIG_DIR="zig-linux-x86_64-${ZIG_VERSION}"
-        fi
-
-        # Download and extract Zig
-        curl -LO ${ZIG_URL}
-        tar -xf ${ZIG_DIR}.tar.xz
-
-        # Apply patch for aarch64
-        if [ "$ARCH" == "aarch64" ]; then
-            MEM_ZIG_PATH="${ZIG_DIR}/lib/std/mem.zig"
-            if [ -f "$MEM_ZIG_PATH" ]; then
-                sed -i 's/4 \* 1024/16 \* 1024/' "$MEM_ZIG_PATH"
-            fi
-        fi
-
-        # Determine the correct bin directory
-        BIN_DIR="/usr/local/bin"
-        if [ "$PACKAGER" == "eopkg" ]; then
-            BIN_DIR="/usr/bin"
-        fi
-
-        # Ensure the bin directory exists
-        "$ESCALATION_TOOL" mkdir -p "$BIN_DIR"
-
-        # Install Zig
-        "$ESCALATION_TOOL" mkdir -p /usr/local/lib
-        "$ESCALATION_TOOL" mv ${ZIG_DIR} /usr/local/lib/
-        "$ESCALATION_TOOL" ln -sf "/usr/local/lib/${ZIG_DIR}/zig" "$BIN_DIR/zig"
-        rm ${ZIG_DIR}.tar.xz
-
-        if ! command -v zig &> /dev/null; then
-            printf "%b\n" "${RED}Zig installation failed${RC}"
-            exit 1
-        fi
-    fi
-}
-
-install_from_source() {
-    printf "%b\n" "${YELLOW}Installing Ghostty from source...${RC}"
-    
-    # Install dependencies based on package manager
-    case "$PACKAGER" in
-        "apt-get"|"nala")
-            "$ESCALATION_TOOL" "$PACKAGER" install -y libgtk-4-dev libadwaita-1-dev git
-            ;;
-        "pacman")
-            "$ESCALATION_TOOL" "$PACKAGER" -S --needed --noconfirm gtk4 libadwaita
-            ;;
-        "dnf")
-            "$ESCALATION_TOOL" "$PACKAGER" install -y gtk4-devel libadwaita-devel
-            ;;
-        "zypper")
-            "$ESCALATION_TOOL" "$PACKAGER" install -y gtk4-tools libadwaita-devel pkgconf-pkg-config
-            ;;
-        *)
-            printf "%b\n" "${RED}Unsupported package manager for source installation${RC}"
-            exit 1
-            ;;
-    esac
-
-    # Clone Ghostty repository
-    git clone https://github.com/ghostty-org/ghostty.git
-    cd ghostty
-
-    # Build Ghostty
-    printf "%b\n" "${CYAN}Building Ghostty...${RC}"
-    zig build -p "$HOME/.local" -Doptimize=ReleaseFast
-
-    printf "%b\n" "${GREEN}Ghostty has been built and installed successfully!${RC}"
-}
-
 create_desktop_entry() {
     printf "%b\n" "${CYAN}Updating desktop entry...${RC}"
     
@@ -214,4 +169,41 @@ create_desktop_entry() {
 
     printf "%b\n" "${GREEN}Desktop entry updated successfully${RC}"
     printf "%b\n" "${YELLOW}Note: You may need to log out and back in to see the application in your menu${RC}"
-} 
+}
+
+# Main installation logic
+printf "%b\n" "${CYAN}Checking for binary package availability...${RC}"
+
+if check_binary_availability; then
+    printf "%b\n" "${CYAN}Binary package found for Ghostty${RC}"
+    install_binary_package
+    printf "%b\n" "${GREEN}Ghostty has been installed successfully from package repository!${RC}"
+else
+    printf "%b\n" "${YELLOW}No binary package found for Ghostty.${RC}"
+    if command -v zig >/dev/null 2>&1; then
+        printf "%b\n" "${CYAN}Zig is already installed${RC}"
+    else
+        printf "%b\n" "${YELLOW}Zig binary not found.${RC}"
+    fi
+    
+    printf "%b\n" "${YELLOW}Would you like to install Ghostty from source? (y/N)${RC}"
+    read -r response
+    if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
+        if ! command -v zig >/dev/null 2>&1; then
+            install_zig
+        fi
+        install_from_source
+    else
+        printf "%b\n" "${RED}Installation cancelled.${RC}"
+        exit 1
+    fi
+fi
+
+# Verify installation
+if command -v ghostty &> /dev/null; then
+    printf "%b\n" "${GREEN}Ghostty installation verified successfully!${RC}"
+    ghostty --version
+else
+    printf "%b\n" "${RED}Ghostty installation could not be verified.${RC}"
+    exit 1
+fi 
