@@ -32,6 +32,8 @@ check_package "musl-tools"
 check_package "musl-dev"
 check_package "gcc-aarch64-linux-gnu"
 check_package "gcc-arm-linux-gnueabihf"
+check_package "libc6-dev-arm64-cross"
+check_package "libc6-dev-armhf-cross"
 
 # Check and install required targets
 check_target "aarch64-unknown-linux-musl"
