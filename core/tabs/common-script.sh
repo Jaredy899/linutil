@@ -7,6 +7,7 @@ RED='\033[31m'
 YELLOW='\033[33m'
 CYAN='\033[36m'
 GREEN='\033[32m'
+MAGENTA='\033[35m'
 
 command_exists() {
 for cmd in "$@"; do
@@ -47,6 +48,7 @@ checkArch() {
     case "$(uname -m)" in
         x86_64 | amd64) ARCH="x86_64" ;;
         aarch64 | arm64) ARCH="aarch64" ;;
+        armv7l) ARCH="armv7l" ;;
         *) printf "%b\n" "${RED}Unsupported architecture: $(uname -m)${RC}" && exit 1 ;;
     esac
 
@@ -55,7 +57,7 @@ checkArch() {
 
 checkAURHelper() {
     ## Check & Install AUR helper
-    if [ "$PACKAGER" = "pacman" ]; then
+    if [ "$PACKAGER" = "pacman" ] && [ -z "$SKIP_AUR_CHECK" ]; then
         if [ -z "$AUR_HELPER_CHECKED" ]; then
             AUR_HELPERS="yay paru"
             for helper in ${AUR_HELPERS}; do
@@ -68,7 +70,7 @@ checkAURHelper() {
             done
 
             printf "%b\n" "${YELLOW}Installing yay as AUR helper...${RC}"
-            "$ESCALATION_TOOL" "$PACKAGER" -S --needed --noconfirm base-devel git
+            "$ESCALATION_TOOL" "$PACKAGER" -S --needed --noconfirm base-devel
             cd /opt && "$ESCALATION_TOOL" git clone https://aur.archlinux.org/yay-bin.git && "$ESCALATION_TOOL" chown -R "$USER":"$USER" ./yay-bin
             cd yay-bin && makepkg --noconfirm -si
 
@@ -107,16 +109,20 @@ checkEscalationTool() {
         exit 1
     fi
 }
-
 checkCommandRequirements() {
     ## Check for requirements.
     REQUIREMENTS=$1
+    MISSING_REQS=""
     for req in ${REQUIREMENTS}; do
         if ! command_exists "${req}"; then
-            printf "%b\n" "${RED}To run me, you need: ${REQUIREMENTS}${RC}"
-            exit 1
+            MISSING_REQS="$MISSING_REQS $req"
         fi
     done
+    if [ -n "$MISSING_REQS" ]; then
+        printf "%b\n" "${YELLOW}Missing requirements:${MISSING_REQS}${RC}"
+        return 1
+    fi
+    return 0
 }
 
 checkPackageManager() {
@@ -182,9 +188,86 @@ checkEnv() {
     checkArch
     checkEscalationTool
     checkCommandRequirements "curl groups $ESCALATION_TOOL"
-    checkPackageManager 'nala apt-get dnf pacman zypper apk xbps-install eopkg'
+    checkPackageManager 'eopkg nala apt-get dnf pacman zypper apk xbps-install'
     checkCurrentDirectoryWritable
     checkSuperUser
     checkDistro
     checkAURHelper
+    setupNonInteractive
+}
+
+# Function to set up the non-interactive installation flags
+setupNonInteractive() {
+    case "$PACKAGER" in
+        pacman)
+            NONINTERACTIVE="--noconfirm --needed"
+            ;;
+        apt-get|nala|dnf|zypper)
+            NONINTERACTIVE="-y"
+            ;;
+        apk)
+            NONINTERACTIVE="--no-cache"
+            ;;
+        eopkg)
+            NONINTERACTIVE="-y"
+            ;;
+        xbps-install)
+            NONINTERACTIVE="-y"
+            ;;
+        *)
+            echo "Unsupported package manager: $PACKAGER"
+            return 1
+            ;;
+    esac
+}
+
+# Unified package installation function
+noninteractive() {
+    if [ -z "$NONINTERACTIVE" ]; then
+        setupNonInteractive
+    fi
+    case "$PACKAGER" in
+        pacman)
+            $ESCALATION_TOOL pacman -S --noconfirm --needed "$@"
+            ;;
+        apt-get|apt)
+            $ESCALATION_TOOL apt-get install -y "$@"
+            ;;
+        apk)
+            $ESCALATION_TOOL apk add --no-cache "$@"
+            ;;
+        eopkg)
+            $ESCALATION_TOOL eopkg install -y "$@"
+            ;;
+        xbps-install)
+            $ESCALATION_TOOL xbps-install -y "$@"
+            ;;
+        *)
+            $ESCALATION_TOOL $PACKAGER install $NONINTERACTIVE "$@"
+            ;;
+    esac
+}
+
+# Function to get non-interactive installation flags (if needed elsewhere)
+getNonInteractiveFlags() {
+    case "$PACKAGER" in
+        pacman)
+            echo "--noconfirm --needed"
+            ;;
+        apt-get|nala|dnf|zypper)
+            echo "-y"
+            ;;
+        apk)
+            echo "--no-cache"
+            ;;
+        eopkg)
+            echo "-y"
+            ;;
+        xbps-install)
+            echo "-y"
+            ;;
+        *)
+            echo ""  # Default to empty string if package manager is unknown
+            ;;
+    esac
 }

@@ -277,6 +277,12 @@ script = "setup-flatpak.sh"
 task_list = "I"
 
 [[data]]
+name = "Ghostty"
+description = "Ghostty is a fast, feature-rich, and cross-platform terminal emulator that uses platform-native UI and GPU acceleration."
+script = "ghostty-setup.sh"
+task_list = "I FM"
+
+[[data]]
 name = "Grub Theme"
 description = "Installs ChrisTitusTech's Top 5 Bootloader Themes script to allow for easy customization of GRUB."
 script = "grub-theme.sh"

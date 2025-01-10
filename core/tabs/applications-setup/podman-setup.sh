@@ -19,8 +19,7 @@ installPodman() {
                 "$ESCALATION_TOOL" "$PACKAGER" -y podman
                 ;;
             *)
-                printf "%b\n" "${RED}Unsupported package manager: ${PACKAGER}${RC}"
-                exit 1
+                "$ESCALATION_TOOL" "$PACKAGER" install -y podman
                 ;;
         esac
     else
