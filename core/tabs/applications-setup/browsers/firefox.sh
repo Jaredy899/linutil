@@ -16,7 +16,7 @@ installFirefox() {
                 "$ESCALATION_TOOL" "$PACKAGER" -S --needed --noconfirm firefox
                 ;;
             dnf|eopkg)
-                "$ESCALATION_TOOL" "$PACKAGER" install -y firefox
+                "$ESCALATION_TOOL" "$PACKAGER" -y install firefox
                 ;;
             xbps-install)
                 "$ESCALATION_TOOL" "$PACKAGER" -y firefox

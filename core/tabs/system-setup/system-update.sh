@@ -57,7 +57,7 @@ fastUpdate() {
             "$ESCALATION_TOOL" "$PACKAGER" update
             ;;
         xbps-install)
-            "$ESCALATION_TOOL" xbps-install -S
+            "$ESCALATION_TOOL" "$PACKAGER" -S
             ;;
         eopkg)
             "$ESCALATION_TOOL" "$PACKAGER" -y update-repo
