@@ -37,7 +37,7 @@ InstallTermiusFonts() {
 
 SetTermiusFonts() {
         case "$DTYPE" in
-            arch|fedora|void|solus|suse*)
+            arch|fedora|void|solus|opensuse-tumbleweed|opensuse-leap)
                 printf "%b\n" "${YELLOW}Updating FONT= line in /etc/vconsole.conf...${RC}"
                 "$ESCALATION_TOOL" sed -i 's/^FONT=.*/FONT=ter-v32b/' /etc/vconsole.conf
                 if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ]; then
