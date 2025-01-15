@@ -60,7 +60,7 @@ installStarshipAndFzf() {
         return
     fi
 
-    if [ "$PACKAGER" = "solus" ]; then
+    if [ "$PACKAGER" = "eopkg" ]; then
         printf "%b\n" "${YELLOW}Installing Starship using Solus package manager...${RC}"
         if ! "$ESCALATION_TOOL" "$PACKAGER" install -y starship; then
             printf "%b\n" "${RED}Something went wrong during starship install with Solus!${RC}"
