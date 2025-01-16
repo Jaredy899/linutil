@@ -27,7 +27,7 @@ installDepend() {
         dnf)
             COMPILEDEPS='@development-tools'
             "$ESCALATION_TOOL" "$PACKAGER" update
-            "$ESCALATION_TOOL" "$PACKAGER" config-manager --set-enabled powertools
+#            "$ESCALATION_TOOL" "$PACKAGER" config-manager --set-enabled powertools
             "$ESCALATION_TOOL" "$PACKAGER" install -y $DEPENDENCIES $COMPILEDEPS
             "$ESCALATION_TOOL" "$PACKAGER" install -y glibc-devel.i686 libgcc.i686
             ;;
