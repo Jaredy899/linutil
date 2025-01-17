@@ -58,7 +58,6 @@ SetTermiusFonts() {
                 printf "%b\n" "${GREEN}Terminus font set for TTY.${RC}"
                 ;;
             debian)
-                
                 printf "%b\n" "${YELLOW}Updating console-setup configuration...${RC}"
                 "$ESCALATION_TOOL" sed -i 's/^CODESET=.*/CODESET="guess"/' /etc/default/console-setup
                 "$ESCALATION_TOOL" sed -i 's/^FONTFACE=.*/FONTFACE="TerminusBold"/' /etc/default/console-setup
