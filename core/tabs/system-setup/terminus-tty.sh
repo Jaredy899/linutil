@@ -25,6 +25,9 @@ InstallTermiusFonts() {
             zypper)
                 "$ESCALATION_TOOL" "$PACKAGER" install -y terminus-bitmap-fonts
                 ;;
+            apk)
+                "$ESCALATION_TOOL" "$PACKAGER" add font-terminus
+                ;;
             *)
                 printf "%b\n" "${RED}Unsupported package manager: ""$PACKAGER""${RC}"
                 exit 1
@@ -43,6 +46,15 @@ SetTermiusFonts() {
                 if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ]; then
                    "$ESCALATION_TOOL" setfont -C /dev/tty1 ter-v32b
                 fi
+                printf "%b\n" "${GREEN}Terminus font set for TTY.${RC}"
+                ;;
+            alpine)
+                printf "%b\n" "${YELLOW}Updating console font configuration for Alpine...${RC}"
+                if [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ]; then
+                    "$ESCALATION_TOOL" setfont -C /dev/tty1 /usr/share/consolefonts/ter-v32b.psf.gz
+                fi
+                echo 'consolefont="/usr/share/consolefonts/ter-v32b.psf.gz"' | "$ESCALATION_TOOL" tee /etc/conf.d/consolefont > /dev/null
+                "$ESCALATION_TOOL" rc-update add consolefont boot
                 printf "%b\n" "${GREEN}Terminus font set for TTY.${RC}"
                 ;;
             debian)
