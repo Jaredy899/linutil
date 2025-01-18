@@ -24,6 +24,19 @@ check_target() {
     fi
 }
 
+# Function to check if Rust is installed
+check_rust() {
+    if ! command -v rustc &> /dev/null; then
+        echo -e "${RED}Rust is not installed. Installing...${NC}"
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        source $HOME/.cargo/env
+    fi
+}
+
+# Check for Rust installation
+echo -e "${GREEN}Checking for Rust installation...${NC}"
+check_rust
+
 # Check for required packages
 echo -e "${GREEN}Checking required packages...${NC}"
 sudo apt-get update
