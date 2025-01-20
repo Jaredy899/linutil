@@ -127,7 +127,7 @@ installDependencies() {
         pacman)
             "$ESCALATION_TOOL" "$PACKAGER" -S --needed git gtk4 libadwaita
             ;;
-        nala|apt)
+        apt-get|nala)
             "$ESCALATION_TOOL" "$PACKAGER" update
             "$ESCALATION_TOOL" "$PACKAGER" install -y build-essential libgtk-4-dev libadwaita-1-dev git
             if grep -q "testing\|unstable" /etc/debian_version; then
