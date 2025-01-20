@@ -125,10 +125,10 @@ installDependencies() {
     
     case "$PACKAGER" in
         pacman)
-            "$ESCALATION_TOOL" pacman -S --needed git gtk4 libadwaita
+            "$ESCALATION_TOOL" "$PACKAGER" -S --needed git gtk4 libadwaita
             ;;
         nala|apt)
-            "$ESCALATION_TOOL" apt update
+            "$ESCALATION_TOOL" "$PACKAGER" update
             "$ESCALATION_TOOL" "$PACKAGER" install -y build-essential libgtk-4-dev libadwaita-1-dev git
             if grep -q "testing\|unstable" /etc/debian_version; then
                 "$ESCALATION_TOOL" "$PACKAGER" install -y gcc-multilib
