@@ -125,7 +125,7 @@ installDependencies() {
     
     case "$PACKAGER" in
         pacman)
-            "$ESCALATION_TOOL" pacman -S --needed gtk4 libadwaita
+            "$ESCALATION_TOOL" pacman -S --needed git gtk4 libadwaita
             ;;
         nala|apt)
             "$ESCALATION_TOOL" apt update
@@ -135,16 +135,16 @@ installDependencies() {
             fi
             ;;
         dnf)
-            "$ESCALATION_TOOL" "$PACKAGER" install -y gtk4-devel libadwaita-devel
+            "$ESCALATION_TOOL" "$PACKAGER" install -y git gtk4-devel libadwaita-devel
             ;;
         zypper)
-            "$ESCALATION_TOOL" "$PACKAGER" install -y gtk4-devel libadwaita-devel pkgconf ncurses-devel
+            "$ESCALATION_TOOL" "$PACKAGER" install -y git gtk4-devel libadwaita-devel pkgconf ncurses-devel
             ;;
         apk)
-            "$ESCALATION_TOOL" "$PACKAGER" add gtk4.0-dev libadwaita-dev pkgconf ncurses
+            "$ESCALATION_TOOL" "$PACKAGER" add gtk4.0-dev git libadwaita-dev pkgconf ncurses
             ;;
         eopkg)
-            "$ESCALATION_TOOL" "$PACKAGER" install -y libgtk-4-devel libadwaita-devel pkgconf
+            "$ESCALATION_TOOL" "$PACKAGER" install -y git libgtk-4-devel libadwaita-devel pkgconf
             ;;
         *)
             printf "%b\n" "${RED}No dependency installation method found for your distribution.${RC}"
