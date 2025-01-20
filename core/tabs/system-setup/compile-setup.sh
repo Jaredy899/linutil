@@ -36,6 +36,7 @@ installDepend() {
             "$ESCALATION_TOOL" "$PACKAGER" refresh 
             "$ESCALATION_TOOL" "$PACKAGER" --non-interactive install $COMPILEDEPS
             "$ESCALATION_TOOL" "$PACKAGER" --non-interactive install tar tree multitail unzip cmake make jq libgcc_s1-gcc7-32bit glibc-devel-32bit
+            ;;
         apk)
             "$ESCALATION_TOOL" "$PACKAGER" add build-base multitail tar tree trash-cli unzip cmake jq
             ;;
