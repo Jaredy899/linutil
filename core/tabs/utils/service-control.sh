@@ -40,6 +40,9 @@ view_all_services() {
         sv)
             ls -1 /etc/sv/ | more
             ;;
+        service)
+            ls -1 /etc/init.d/ | more
+            ;;
     esac
 }
 
@@ -55,6 +58,9 @@ view_enabled_services() {
             ;;
         sv)
             ls -1 /var/service/ | more
+            ;;
+        service)
+            ls -1 /etc/rc3.d/S* | sed 's/^S[0-9]*//' | more
             ;;
     esac
 }
@@ -72,6 +78,9 @@ view_disabled_services() {
         sv)
             ls -1 /etc/sv/ | grep -v "$(ls -1 /var/service/)" | more
             ;;
+        service)
+            ls -1 /etc/rc3.d/K* | sed 's/^K[0-9]*//' | more
+            ;;
     esac
 }
 
@@ -88,6 +97,11 @@ view_started_services() {
         sv)
             for service in /var/service/*; do
                 [ -d "$service" ] && "$ESCALATION_TOOL" sv status "$(basename "$service")" | grep "^run:" >/dev/null && basename "$service"
+            done | more
+            ;;
+        service)
+            for service in /etc/init.d/*; do
+                [ -x "$service" ] && "$ESCALATION_TOOL" service "$(basename "$service")" status >/dev/null 2>&1 && basename "$service"
             done | more
             ;;
     esac
@@ -189,6 +203,16 @@ remove_service() {
             SERVICE_DIR="/etc/sv/$SERVICE_NAME"
             if [ -d "$SERVICE_DIR" ]; then
                 "$ESCALATION_TOOL" rm -rf "$SERVICE_DIR"
+                printf "%b\n" "Service $SERVICE_NAME has been removed."
+            else
+                printf "%b\n" "Service $SERVICE_NAME does not exist."
+            fi
+            ;;
+        service)
+            SERVICE_FILE="/etc/init.d/$SERVICE_NAME"
+            if [ -f "$SERVICE_FILE" ]; then
+                "$ESCALATION_TOOL" update-rc.d -f "$SERVICE_NAME" remove
+                "$ESCALATION_TOOL" rm -f "$SERVICE_FILE"
                 printf "%b\n" "Service $SERVICE_NAME has been removed."
             else
                 printf "%b\n" "Service $SERVICE_NAME does not exist."
