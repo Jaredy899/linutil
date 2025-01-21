@@ -104,7 +104,7 @@ installGhosttyBinary() {
             "$ESCALATION_TOOL" "$PACKAGER" -S ghostty
             ;;
         zypper)
-            "$ESCALATION_TOOL" "$PACKAGER" install ghostty
+            "$ESCALATION_TOOL" "$PACKAGER" install -y ghostty
             ;;
         *)
             return 1
