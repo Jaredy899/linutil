@@ -2,7 +2,11 @@
 
 checkInitManager() {
     for manager in $1; do
-        if command_exists "$manager"; then
+        if [ "$manager" = "runit" ] && command_exists sv; then
+            INIT_MANAGER="runit"
+            printf "%b\n" "${CYAN}Using runit to interact with init system${RC}"
+            break
+        elif command_exists "$manager"; then
             INIT_MANAGER="$manager"
             printf "%b\n" "${CYAN}Using ${manager} to interact with init system${RC}"
             break
@@ -98,4 +102,4 @@ isServiceActive() {
     esac
 }
 
-checkInitManager 'systemctl rc-service runit'
+checkInitManager 'systemctl rc-service runit sv'
