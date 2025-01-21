@@ -26,9 +26,6 @@ startService() {
         sv)
             "$ESCALATION_TOOL" sv start "$1"
             ;;
-        service)
-            "$ESCALATION_TOOL" service "$1" start
-            ;;
     esac
 }
 
@@ -42,9 +39,6 @@ stopService() {
             ;;
         sv)
             "$ESCALATION_TOOL" sv stop "$1"
-            ;;
-        service)
-            "$ESCALATION_TOOL" service "$1" stop
             ;;
     esac
 }
@@ -60,9 +54,6 @@ enableService() {
         sv)
             "$ESCALATION_TOOL" ln -sf "/etc/sv/$1" "/var/service/"
             ;;
-        service)
-            "$ESCALATION_TOOL" update-rc.d "$1" enable
-            ;;
     esac
 }
 
@@ -77,9 +68,6 @@ disableService() {
         sv)
             "$ESCALATION_TOOL" rm -f "/var/service/$1"
             ;;
-        service)
-            "$ESCALATION_TOOL" update-rc.d "$1" disable
-            ;;
     esac
 }
 
@@ -88,7 +76,7 @@ startAndEnableService() {
         systemctl)
             "$ESCALATION_TOOL" "$INIT_MANAGER" enable --now "$1"
             ;;
-        rc-service | sv | service)
+        rc-service | sv)
             enableService "$1"
             startService "$1"
             ;;
@@ -106,10 +94,7 @@ isServiceActive() {
         sv)
             "$ESCALATION_TOOL" sv status "$1" >/dev/null 2>&1
             ;;
-        service)
-            "$ESCALATION_TOOL" service "$1" status >/dev/null 2>&1
-            ;;
     esac
 }
 
-checkInitManager 'systemctl rc-service sv service'
+checkInitManager 'systemctl rc-service sv'
