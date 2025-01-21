@@ -103,7 +103,7 @@ installGhosttyBinary() {
         xbps-install)
             "$ESCALATION_TOOL" "$PACKAGER" -S ghostty
             ;;
-        zypper)
+        zypper|eopkg)
             "$ESCALATION_TOOL" "$PACKAGER" install -y ghostty
             ;;
         *)
