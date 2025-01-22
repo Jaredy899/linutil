@@ -89,7 +89,7 @@ installGhosttyBinary() {
             printf "%b" "Enter your choice: "
             read -r choice
             case $choice in
-                1) "$ESCALATION_TOOL" pacman -S ghostty ;;
+                1) "$ESCALATION_TOOL" pacman -S --noconfirm ghostty ;;
                 2) "$AUR_HELPER" -S --needed --noconfirm ghostty-git ;;
                 *)
                     printf "%b\n" "${RED}Invalid choice:${RC} $choice"
@@ -101,7 +101,7 @@ installGhosttyBinary() {
             "$ESCALATION_TOOL" "$PACKAGER" -av ghostty
             ;;
         xbps-install)
-            "$ESCALATION_TOOL" "$PACKAGER" -S ghostty
+            "$ESCALATION_TOOL" "$PACKAGER" -Sy ghostty
             ;;
         zypper|eopkg)
             "$ESCALATION_TOOL" "$PACKAGER" install -y ghostty
