@@ -160,8 +160,20 @@ buildGhosttyFromSource() {
     printf "%b\n" "${CYAN}Building Ghostty from source...${RC}"
     
     git clone https://github.com/ghostty-org/ghostty.git
-    cd ghostty || exit 1
-    "$ESCALATION_TOOL" zig build -p /usr -Doptimize=ReleaseFast
+    cd ghostty
+    # Try PATH first, fall back to full path if needed
+    if command -v zig >/dev/null 2>&1; then
+        "$ESCALATION_TOOL" zig build -p /usr -Doptimize=ReleaseFast
+    else
+        zig build -p /usr -Doptimize=ReleaseFast
+    fi
+
+    # Add special environment variables for Raspberry Pi OS
+    if [ -f /etc/os-release ] && grep -q "Raspberry Pi OS" /etc/os-release; then
+        if [ -f /usr/share/applications/com.mitchellh.ghostty.desktop ]; then
+            "$ESCALATION_TOOL" sed -i 's|^Exec=.*|Exec=env GDK_BACKEND=wayland,x11 LIBGL_ALWAYS_SOFTWARE=1 ghostty|' /usr/share/applications/com.mitchellh.ghostty.desktop
+        fi
+    fi
 
     printf "%b\n" "${GREEN}Ghostty has been built and installed successfully!${RC}"
 }
