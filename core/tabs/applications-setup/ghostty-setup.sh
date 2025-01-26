@@ -129,7 +129,7 @@ installDependencies() {
             ;;
         apt-get|nala)
             "$ESCALATION_TOOL" "$PACKAGER" update
-            "$ESCALATION_TOOL" "$PACKAGER" install -y build-essential libgtk-4-dev libadwaita-1-dev git
+            "$ESCALATION_TOOL" "$PACKAGER" install -y libgtk-4-dev libadwaita-1-dev git
             if grep -q "testing\|unstable" /etc/debian_version; then
                 "$ESCALATION_TOOL" "$PACKAGER" install -y gcc-multilib
             fi
