@@ -72,10 +72,7 @@ fastUpdate() {
 updateSystem() {
     printf "%b\n" "${YELLOW}Updating system packages.${RC}"
     case "$PACKAGER" in
-        apt-get|nala)
-            "$ESCALATION_TOOL" "$PACKAGER" upgrade -y
-            ;;
-        dnf)
+        apt-get|nala|dnf|eopkg)
             "$ESCALATION_TOOL" "$PACKAGER" upgrade -y
             ;;
         pacman)
@@ -90,9 +87,6 @@ updateSystem() {
             ;;
         xbps-install)
             "$ESCALATION_TOOL" "$PACKAGER" -Su
-            ;;
-        eopkg)
-            "$ESCALATION_TOOL" "$PACKAGER" -y upgrade
             ;;
         *)
             printf "%b\n" "${RED}Unsupported package manager: ${PACKAGER}${RC}"
