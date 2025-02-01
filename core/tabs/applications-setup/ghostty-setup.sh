@@ -97,9 +97,6 @@ installGhosttyBinary() {
                     ;;
             esac
             ;;
-        emerge)
-            "$ESCALATION_TOOL" "$PACKAGER" -av ghostty
-            ;;
         xbps-install)
             "$ESCALATION_TOOL" "$PACKAGER" -Sy ghostty
             ;;
