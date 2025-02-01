@@ -138,7 +138,7 @@ installDependencies() {
             "$ESCALATION_TOOL" "$PACKAGER" install -y git gtk4-devel libadwaita-devel pkgconf ncurses-devel
             ;;
         apk)
-            "$ESCALATION_TOOL" "$PACKAGER" add gtk4.0-dev git libadwaita-dev pkgconf ncurses
+            "$ESCALATION_TOOL" "$PACKAGER" add icu-data-full icu-libs gtk4.0-dev git libadwaita-dev pkgconf ncurses
             ;;
         eopkg)
             "$ESCALATION_TOOL" "$PACKAGER" install -y git libgtk-4-devel libadwaita-devel pkgconf
