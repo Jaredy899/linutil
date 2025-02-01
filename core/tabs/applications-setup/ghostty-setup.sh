@@ -20,7 +20,7 @@ installZig() {
     # First try package manager installation
     case "$PACKAGER" in
         pacman)
-            "$ESCALATION_TOOL" pacman -S --needed zig=0.13.0
+            "$ESCALATION_TOOL" "$PACKAGER" -S --needed zig=0.13.0
             ;;
         dnf|eopkg)
             "$ESCALATION_TOOL" "$PACKAGER" install -y zig
