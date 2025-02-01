@@ -22,7 +22,7 @@ installNeovim() {
             ;;
         apt-get|nala)
             "$ESCALATION_TOOL" "$PACKAGER" install -y ripgrep fd-find python3-venv luarocks golang-go shellcheck git ninja-build gettext cmake unzip curl
-            git clone https://github.com/neovim/neovim
+            git clone --depth 1 https://github.com/neovim/neovim
             cd neovim
             make CMAKE_BUILD_TYPE=Release
             "$ESCALATION_TOOL" make install
