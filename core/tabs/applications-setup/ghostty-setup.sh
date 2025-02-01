@@ -171,7 +171,7 @@ buildGhosttyFromSource() {
     # Add special environment variables for Raspberry Pi OS
     if [ -f /etc/os-release ] && grep -q "Raspberry Pi OS" /etc/os-release; then
         if [ -f /usr/share/applications/com.mitchellh.ghostty.desktop ]; then
-            "$ESCALATION_TOOL" sed -i 's|^Exec=.*|Exec=env GDK_BACKEND=wayland,x11 LIBGL_ALWAYS_SOFTWARE=1 ghostty|' /usr/share/applications/com.mitchellh.ghostty.desktop
+            "$ESCALATION_TOOL" sed -i 's|^\s*Exec=.*|Exec=env GDK_BACKEND=wayland,x11 LIBGL_ALWAYS_SOFTWARE=1 ghostty|' /usr/share/applications/com.mitchellh.ghostty.desktop
         fi
     fi
 
