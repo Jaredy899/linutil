@@ -87,7 +87,7 @@ setupFastfetchShell() {
 			fi
 		fi
 	fi
-
+}
 
 checkEnv
 checkEscalationTool
