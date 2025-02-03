@@ -176,6 +176,11 @@ buildGhosttyFromSource() {
 }
 
 installGhostty() {
+    if command_exists ghostty; then
+         printf "%b\n" "${GREEN}Ghostty is already installed!${RC}"
+         exit 0
+    fi
+
     if installGhosttyBinary; then
         printf "%b\n" "${GREEN}Ghostty installed successfully from binaries!${RC}"
     else
