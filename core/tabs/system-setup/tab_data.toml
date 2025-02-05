@@ -107,7 +107,7 @@ values = [ "btrfs" ]
 
 [[data]]
 name= "Cockpit"
-description = Cockpit is a web-based graphical interface for servers.
+description = "Cockpit is a web-based graphical interface for servers."
 script = "cockpit-setup.sh"
 task_list = "I"
 
