@@ -9,7 +9,6 @@ install_cockpit() {
         noninteractive cockpit
         startAndEnableService "cockpit.socket"
         printf "%b\n" "${GREEN}Cockpit service has been started.${RC}"
-        configure_ufw_for_cockpit
         printf "%b\n" "${GREEN}Cockpit installation complete.${RC}"
     else
         printf "%b\n" "${GREEN}Cockpit is already installed.${RC}"
