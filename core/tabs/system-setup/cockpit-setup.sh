@@ -29,5 +29,5 @@ configureUFW() {
 
 checkEnv
 checkEscalationTool
-configureUFW
 install_cockpit
+configureUFW
