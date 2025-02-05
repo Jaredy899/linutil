@@ -106,6 +106,12 @@ data = "command_exists"
 values = [ "btrfs" ]
 
 [[data]]
+name= "Cockpit"
+description = Cockpit is a web-based graphical interface for servers.
+script = "cockpit-setup.sh"
+task_list = "I"
+
+[[data]]
 name = "Build Prerequisites"
 description = "This script is designed to handle the installation of various software dependencies across different Linux distributions"
 script = "compile-setup.sh"
