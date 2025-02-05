@@ -1,6 +1,7 @@
 #!/bin/sh -e
 
 . ../common-script.sh
+. ../common-service-script.sh
 
 install_cockpit() {
     if ! command_exists cockpit; then
