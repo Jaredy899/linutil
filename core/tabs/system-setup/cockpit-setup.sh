@@ -6,7 +6,18 @@
 install_cockpit() {
     if ! command_exists cockpit; then
         printf "%b\n" "${YELLOW}Installing Cockpit...${RC}"
-        noninteractive cockpit
+        case "$PACKAGER" in
+        pacman)
+            "$ESCALATION_TOOL" "$PACKAGER" -S --noconfirm cockpit
+            ;;
+        apt-get|nala|dnf|zypper)
+            "$ESCALATION_TOOL" "$PACKAGER" install -y cockpit
+            ;;
+        *)
+            printf "%b\n" "${RED}Unsupported package manager: $PACKAGER${RC}"
+            exit 1
+            ;;
+        esac
         startAndEnableService "cockpit.socket"
         printf "%b\n" "${GREEN}Cockpit service has been started.${RC}"
         printf "%b\n" "${GREEN}Cockpit installation complete.${RC}"
