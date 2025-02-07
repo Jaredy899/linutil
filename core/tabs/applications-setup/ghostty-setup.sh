@@ -181,16 +181,18 @@ installGhostty() {
          exit 0
     fi
 
-    if installGhosttyBinary; then
-        printf "%b\n" "${GREEN}Ghostty installed successfully from binaries!${RC}"
-    else
-        printf "%b\n" "${YELLOW}Official binaries not available. Do you want to build Ghostty from source? (y/n)${RC}"
-        read -r response
-        if [ "$response" = "y" ] || [ "$response" = "Y" ]; then
-            buildGhosttyFromSource
+    printf "%b\n" "${YELLOW}Do you want to install Ghostty from binaries? (y/n)${RC}"
+    read -r install_choice
+
+    if [ "$install_choice" = "y" ] || [ "$install_choice" = "Y" ]; then
+        if installGhosttyBinary; then
+            printf "%b\n" "${GREEN}Ghostty installed successfully from binaries!${RC}"
         else
-            printf "%b\n" "${RED}Installation aborted.${RC}"
+            printf "%b\n" "${RED}Failed to install Ghostty from binaries.${RC}"
         fi
+    else
+        printf "%b\n" "${YELLOW}Building Ghostty from source...${RC}"
+        buildGhosttyFromSource
     fi
 }
 
