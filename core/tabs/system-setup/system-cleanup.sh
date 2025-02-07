@@ -12,9 +12,8 @@ cleanup_system() {
             "$ESCALATION_TOOL" du -h /var/cache/apt
             ;;
         zypper)
-            "$ESCALATION_TOOL" "$PACKAGER" clean -a
-            "$ESCALATION_TOOL" "$PACKAGER" tidy
-            "$ESCALATION_TOOL" "$PACKAGER" cc -a
+            "$ESCALATION_TOOL" "$PACKAGER" clean --all
+            "$ESCALATION_TOOL" "$PACKAGER" packages --unneeded
             ;;
         dnf)
             "$ESCALATION_TOOL" "$PACKAGER" clean all
@@ -26,6 +25,12 @@ cleanup_system() {
             ;;
         apk)
             "$ESCALATION_TOOL" "$PACKAGER" cache clean
+            ;;
+        xbps-install)
+            "$ESCALATION_TOOL" xbps-remove -Oo
+            ;;
+        eopkg)
+            "$ESCALATION_TOOL" "$PACKAGER" -y remove-orphans
             ;;
         *)
             printf "%b\n" "${RED}Unsupported package manager: ${PACKAGER}. Skipping.${RC}"
