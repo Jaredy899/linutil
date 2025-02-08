@@ -187,8 +187,16 @@ installGhostty() {
     if [ "$install_choice" = "y" ] || [ "$install_choice" = "Y" ]; then
         if installGhosttyBinary; then
             printf "%b\n" "${GREEN}Ghostty installed successfully from binaries!${RC}"
+            exit 0
         else
             printf "%b\n" "${RED}Failed to install Ghostty from binaries.${RC}"
+            printf "%b\n" "${YELLOW}Do you want to build Ghostty from source instead? (y/n)${RC}"
+            read -r source_choice
+            if [ "$source_choice" = "y" ] || [ "$source_choice" = "Y" ]; then
+                buildGhosttyFromSource
+            else
+                exit 1
+            fi
         fi
     else
         printf "%b\n" "${YELLOW}Building Ghostty from source...${RC}"
