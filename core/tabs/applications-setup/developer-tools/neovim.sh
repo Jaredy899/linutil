@@ -21,16 +21,23 @@ installNeovim() {
             "$ESCALATION_TOOL" "$PACKAGER" -S --needed --noconfirm neovim ripgrep fzf python-virtualenv luarocks go shellcheck git
             ;;
         apt-get|nala)
-            "$ESCALATION_TOOL" "$PACKAGER" install -y ripgrep fd-find python3-venv luarocks golang-go shellcheck git
-            curl -sSLo /tmp/nvim.appimage https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
-            chmod u+x /tmp/nvim.appimage
-            "$ESCALATION_TOOL" mv /tmp/nvim.appimage /usr/local/bin/nvim
+            "$ESCALATION_TOOL" "$PACKAGER" install -y ripgrep fd-find python3-venv luarocks golang-go shellcheck git ninja-build gettext cmake unzip curl
+            git clone --depth 1 https://github.com/neovim/neovim
+            cd neovim
+            make CMAKE_BUILD_TYPE=Release
+            "$ESCALATION_TOOL" make install
             ;;
         dnf|zypper)
             "$ESCALATION_TOOL" "$PACKAGER" install -y neovim ripgrep fzf python3-virtualenv luarocks golang ShellCheck git
             ;;
         apk)
             "$ESCALATION_TOOL" "$PACKAGER" add neovim ripgrep fzf py3-virtualenv luarocks go shellcheck git
+            ;;
+        xbps-install)
+            "$ESCALATION_TOOL" "$PACKAGER" -y neovim ripgrep fzf python3-virtualenv luarocks go shellcheck git
+            ;;
+        eopkg)
+            "$ESCALATION_TOOL" "$PACKAGER" -y install neovim ripgrep fzf virtualenv luarocks golang shellcheck git
             ;;
         *)
             printf "%b\n" "${RED}Unsupported package manager: ""$PACKAGER""${RC}"
